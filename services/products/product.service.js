@@ -18,7 +18,18 @@ class ProductsService {
   }
 
   create(body) {
-
+    const last = Math.max(...this.productList.map(item => item.id),1)
+    this.productList.push({
+      id: last + 1 ,
+      ...body
+    })
+    return {
+      message: 'created',
+      data: {
+        id: last + 1 ,
+        ...body
+      }
+    }
   }
 
   findOne(id) {

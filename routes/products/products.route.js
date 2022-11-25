@@ -55,18 +55,8 @@ router.delete('/:id', (req, res) => {
 
 router.post('/', (req, res) => {
   const body = req.body;
-  const last = Math.max(...productList.map(item => item.id),1)
-  productList.push({
-    id: last + 1 ,
-    ...body
-  })
-  res.status(201).json({
-    message: 'created',
-    data: {
-      id: last + 1 ,
-      ...body
-    }
-  });
+  const newProduct = prodServ.create(body)
+  res.status(201).json(newProduct);
 });
 
 module.exports = router;
