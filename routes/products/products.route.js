@@ -5,7 +5,7 @@ const router = express.Router();
 
 const productList = [];
 const index = 0;
-for (let index = 0; index <= 10; index++) {
+for (let index = 1; index <= 5; index++) {
   productList.push({
     id: index,
     name: faker.commerce.productName(),
@@ -29,18 +29,28 @@ router.get('/', (req, res) => {
       pages: pages,
     }
   })
-});
+})
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
   const item = productList.findIndex((product) => product.id === parseInt(id))
   res.json(productList[item]);
-});
+})
 
 router.post('/', (req, res) => {
-  productList.push(req.body);
-
-  res.json(productList);
-});
+  const body = req.body;
+  const last = Math.max(...productList.map(item => item.id),1)
+  productList.push({
+    id: last + 1 ,
+    ...body
+  })
+  res.json({
+    message: 'created',
+    data: {
+      id: last + 1 ,
+      ...body
+    }
+  });
+})
 
 module.exports = router;
