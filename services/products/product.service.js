@@ -56,19 +56,15 @@ class ProductsService {
   }
 
   update(id, body) {
-    const product = this.productList.find((item) => item.id === parseInt(id));
+    const index = this.productList.findIndex((item) => item.id === parseInt(id));
 
-    if (!product){
+    if (index === -1){
       return false
     } else {
-      for (const item of this.productList) {
-        if(product.id === parseInt(id)) {
-          body.name ? item.name = body.name : null;
-          body.price ? item.price = body.price: null;
-          body.img ? item.img = body.img: null;
-          break;
-        }
-      }
+      body.name ? this.productList[index].name = body.name : null;
+      body.price ? this.productList[index].price = body.price: null;
+      body.img ? this.productList[index].img = body.img: null;
+
       return {
         message: 'Updated',
         data: body
