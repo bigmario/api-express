@@ -19,16 +19,15 @@ class ProductsService {
 
   create(body) {
     const last = Math.max(...this.productList.map(item => item.id),1)
-    this.productList.push({
+    const newProduct = {
       id: last + 1 ,
       ...body
-    })
+    }
+    this.productList.push(newProduct)
+
     return {
       message: 'created',
-      data: {
-        id: last + 1 ,
-        ...body
-      }
+      data: newProduct
     }
   }
 
