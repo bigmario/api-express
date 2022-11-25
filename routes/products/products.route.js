@@ -33,39 +33,59 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {
   const { id } = req.params;
-  const item = productList.findIndex((product) => product.id === parseInt(id))
-  res.json(productList[item]);
+  const product = productList.find((product) => product.id === parseInt(id))
+  if(!product) {
+    res.status(404).json({
+      message: 'Not found'
+    });
+  } else {
+    res.status(200).json(product);
+  }
+
 });
 
 router.patch('/:id', (req, res) => {
   const { id } = req.params;
   const body = req.body;
 
-  for (const product of productList) {
-    if(product.id === parseInt(id)) {
-      body.name ? product.name = body.name : null;
-      body.price ? product.price = body.price: null;
-      body.img ? product.img = body.img: null;
-      break;
+  const product = productList.find((item) => item.id === parseInt(id));
+
+  if (!product) {
+    res.status(404).json({
+      message: 'Not found'
+    });
+  } else {
+    for (const product of productList) {
+      if(product.id === parseInt(id)) {
+        body.name ? product.name = body.name : null;
+        body.price ? product.price = body.price: null;
+        body.img ? product.img = body.img: null;
+        break;
+      }
     }
+
+    res.json({
+      message: 'Updated',
+      data: body
+    });
   }
-
-  res.json({
-    message: 'Updated',
-    data: body
-  });
-
 });
 
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
   const deletedProduct = productList.find((item) => item.id === parseInt(id))
-  productList = productList.filter((item) => item.id !== parseInt(id));
 
-  res.json({
-    message: 'Deleted',
-    data: deletedProduct
-  });
+  if (!deletedProduct) {
+    res.status(404).json({
+      message: 'Not found'
+    });
+  } else {
+    productList = productList.filter((item) => item.id !== parseInt(id));
+    res.json({
+      message: 'Deleted',
+      data: deletedProduct
+    });
+  }
 });
 
 router.post('/', (req, res) => {
@@ -75,7 +95,7 @@ router.post('/', (req, res) => {
     id: last + 1 ,
     ...body
   })
-  res.json({
+  res.status(201).json({
     message: 'created',
     data: {
       id: last + 1 ,
