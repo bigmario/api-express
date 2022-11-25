@@ -61,13 +61,15 @@ class ProductsService {
     if (index === -1){
       return false
     } else {
-      body.name ? this.productList[index].name = body.name : null;
-      body.price ? this.productList[index].price = body.price: null;
-      body.img ? this.productList[index].img = body.img: null;
+      const product = this.productList[index]
+      this.productList[index] = {
+        ...product,
+        ...body
+      }
 
       return {
         message: 'Updated',
-        data: body
+        data: this.productList[index]
       }
     }
   }
