@@ -1,5 +1,5 @@
-apiRouter = require('./api.route')
-productsRouter = require('./products.route')
+apiRouter = require('./api/api.route')
+productsRouter = require('./products/products.route')
 
 function routerApi(app) {
   app.use('/api', apiRouter);
