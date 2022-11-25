@@ -42,7 +42,11 @@ class ProductsService {
 
   async findOne(id) {
     const product = this.productList.find((product) => product.id === parseInt(id))
-    return product
+    if (!product) {
+      throw new Error('Product not found');
+    } else {
+      return product;
+    }
   }
 
   findAll(queryParams = null) {
@@ -93,7 +97,7 @@ class ProductsService {
     const deletedProduct = this.productList.find((item) => item.id === parseInt(id))
 
     if (!deletedProduct) {
-      return false
+      throw new Error('Product not found')
     } else {
       this.productList = this.productList.filter((item) => item.id !== parseInt(id));
       return {
