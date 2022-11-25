@@ -6,6 +6,15 @@ class ProductsService {
     this.generate();
   }
 
+  static _productsServiceInstance = null;
+
+  static async getInstance() {
+    if (ProductsService._productsServiceInstance === null) {
+      ProductsService._productsServiceInstance = new ProductsService();
+    }
+    return ProductsService._productsServiceInstance;
+  }
+
   generate() {
     for (let index = 1; index <= 5; index++) {
       this.productList.push({
@@ -17,7 +26,7 @@ class ProductsService {
     }
   }
 
-  create(body) {
+  async create(body) {
     const last = Math.max(...this.productList.map(item => item.id))
     const newProduct = {
       id: last + 1 ,
@@ -31,7 +40,7 @@ class ProductsService {
     }
   }
 
-  findOne(id) {
+  async findOne(id) {
     const product = this.productList.find((product) => product.id === parseInt(id))
     return product
   }
@@ -44,7 +53,7 @@ class ProductsService {
     const currentPage = Math.ceil(count%offset);
     const products = ( (limit && offset) && ( offset>0 )) ? this.productList.slice((offset - 1) * limit , (limit * offset)) : this.productList;
 
-    return {
+    const response = {
       data: products,
       meta: {
         total: count,
@@ -53,13 +62,19 @@ class ProductsService {
         pages: pages || 1,
       }
     }
+
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(response);
+      }, 5000);
+    });
   }
 
-  update(id, body) {
+  async update(id, body) {
     const index = this.productList.findIndex((item) => item.id === parseInt(id));
 
     if (index === -1){
-      return false
+      throw new Error('Product not found')
     } else {
       const product = this.productList[index]
       this.productList[index] = {
@@ -74,7 +89,7 @@ class ProductsService {
     }
   }
 
-  delete(id) {
+  async delete(id) {
     const deletedProduct = this.productList.find((item) => item.id === parseInt(id))
 
     if (!deletedProduct) {
