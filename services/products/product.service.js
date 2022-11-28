@@ -1,10 +1,13 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom')
+const pool = require('../../libs/postgres.pool')
 
 class ProductsService {
   constructor() {
     this.productList = [];
     this.generate();
+    this.pool = pool;
+    this.pool.on('error', (err) => console.log(err));
   }
 
   static _productsServiceInstance = null;
@@ -53,13 +56,16 @@ class ProductsService {
     return product;
   }
 
-  findAll(queryParams = null) {
+  async findAll(queryParams = null) {
+    const query = 'SELECT * FROM task';
+    const queryResult = await this.pool.query(query);
+
     const {limit, offset} = queryParams;
 
-    const count = this.productList.length;
+    const count = queryResult.rows.length;
     const pages = Math.ceil(count/limit);
     const currentPage = Math.ceil(count%offset);
-    const products = ( (limit && offset) && ( offset>0 )) ? this.productList.slice((offset - 1) * limit , (limit * offset)) : this.productList;
+    const products = ( (limit && offset) && ( offset>0 )) ? queryResult.rows.slice((offset - 1) * limit , (limit * offset)) : queryResult.rows;
 
     const response = {
       data: products,
@@ -74,7 +80,7 @@ class ProductsService {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(response);
-      }, 5000);
+      }, 1000);
     });
   }
 
