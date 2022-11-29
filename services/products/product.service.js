@@ -1,13 +1,11 @@
 const { faker } = require('@faker-js/faker');
 const boom = require('@hapi/boom')
-const pool = require('../../libs/postgres.pool')
+const sequelize = require('../../libs/sequelize')
 
 class ProductsService {
   constructor() {
     this.productList = [];
     this.generate();
-    this.pool = pool;
-    this.pool.on('error', (err) => console.log(err));
   }
 
   static _productsServiceInstance = null;
@@ -58,14 +56,14 @@ class ProductsService {
 
   async findAll(queryParams = null) {
     const query = 'SELECT * FROM task';
-    const queryResult = await this.pool.query(query);
+    const [data] = await sequelize.query(query);
 
     const {limit, offset} = queryParams;
 
-    const count = queryResult.rows.length;
+    const count = data.length;
     const pages = Math.ceil(count/limit);
     const currentPage = Math.ceil(count%offset);
-    const products = ( (limit && offset) && ( offset>0 )) ? queryResult.rows.slice((offset - 1) * limit , (limit * offset)) : queryResult.rows;
+    const products = ( (limit && offset) && ( offset>0 )) ? data.slice((offset - 1) * limit , (limit * offset)) : data;
 
     const response = {
       data: products,
