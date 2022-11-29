@@ -11,7 +11,7 @@ const corsOptions = {
   optionsSuccessStatus: 200
 }
 
-const { logErrors, errorhandler, boomErrorhandler } = require('./middlewares/error.handler')
+const { logErrors, errorhandler, boomErrorhandler, ormErrorHandler } = require('./middlewares/error.handler')
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,6 +22,7 @@ app.use(cors(corsOptions));
 routerApi(app);
 
 app.use(logErrors)
+app.use(ormErrorHandler)
 app.use(boomErrorhandler)
 app.use(errorhandler)
 

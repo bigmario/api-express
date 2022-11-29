@@ -1,33 +1,58 @@
 const boom = require('@hapi/boom');
+const {models} = require('../../libs/sequelize')
 
 const getConnection = require('../../libs/postgres')
 class UserService {
   constructor() {}
 
   async create(data) {
-    return data;
+    const newUser = await models.User.create(data)
+    return newUser;
   }
 
-  async find() {
-    const client = await getConnection();
-    const res = await client.query('SELECT * from task')
-    await client.end()
-    return res.rows;
+  async find(queryParams) {
+    const rta = await models.User.findAll();
+    const {limit, offset} = queryParams;
+
+    const count = rta.length;
+    const pages = Math.ceil(count/limit);
+    const currentPage = Math.ceil(count%offset);
+    const products = ( (limit && offset) && ( offset>0 )) ? rta.slice((offset - 1) * limit , (limit * offset)) : rta;
+
+    const response = {
+      data: products,
+      meta: {
+        total: count,
+        showing: parseInt(limit) || count,
+        page: currentPage || 1,
+        pages: pages || 1,
+      }
+    }
+    return response;
   }
 
   async findOne(id) {
-    return { id };
+    const user = await models.User.findByPk(id);
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+    return user;
   }
 
   async update(id, changes) {
+    const userUpdate = await this.findOne(id);
+    const rta = await userUpdate.update(changes);
+
     return {
       id,
-      changes,
+      rta,
     };
   }
 
   async delete(id) {
-    return { id };
+    const userDelete = await this.findOne(id);
+    userDelete.destroy()
+    return true;
   }
 }
 
