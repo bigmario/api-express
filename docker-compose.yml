@@ -23,7 +23,7 @@ services:
   mysql:
     image: mysql:latest
     environment:
-      - MYSQL_DATABASE=bigmario_store
+      - MYSQL_DATABASE=my_store
       - MYSQL_ROOT_PASSWORD=root
     ports:
       - '3307:3306'
