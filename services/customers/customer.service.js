@@ -7,8 +7,11 @@ class CustomerService {
 
   async find() {
     const rta = await models.Customer.findAll({
-      include: ['user']
+      include: ['user'],
     });
+    for (const item of rta) {
+      delete item.dataValues['userId'];
+    }
     return rta;
   }
 

@@ -6,6 +6,7 @@ async function setupModels(sequelize) {
   Customer.init(CustomerSchema, Customer.config(sequelize));
 
   Customer.associate(sequelize.models);
+  User.associate(sequelize.models);
 }
 
 module.exports = setupModels;

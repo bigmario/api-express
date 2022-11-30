@@ -11,7 +11,9 @@ class UserService {
   }
 
   async find(queryParams) {
-    const rta = await models.User.findAll();
+    const rta = await models.User.findAll({
+      include: ['Customer']
+    });
     const {limit, offset} = queryParams;
 
     const count = rta.length;
