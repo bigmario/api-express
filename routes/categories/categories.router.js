@@ -9,7 +9,8 @@ const service = new CategoryService();
 
 router.get('/', async (req, res, next) => {
   try {
-    const categories = await service.find();
+    const {query} = req
+    const categories = await service.find(query);
     res.json(categories);
   } catch (error) {
     next(error);

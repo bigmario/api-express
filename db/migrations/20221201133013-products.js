@@ -1,6 +1,7 @@
 'use strict';
 
-const { USER_TABLE, UserSchema } = require('../models/user.model');
+const { CATEGORY_TABLE, CategorySchema } = require('../models/category.model');
+const { PRODUCT_TABLE, ProductSchema } = require('../models/product.model');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -11,7 +12,9 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.addColumn(USER_TABLE, 'role', UserSchema.role);
+    await queryInterface.createTable(CATEGORY_TABLE, CategorySchema);
+     await queryInterface.createTable(PRODUCT_TABLE, ProductSchema);
+
   },
 
   async down (queryInterface, Sequelize) {
@@ -21,6 +24,7 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn(USER_TABLE, 'role');
+    await queryInterface.dropTable(CATEGORY_TABLE);
+     await queryInterface.dropTable(PRODUCT_TABLE);
   }
 };

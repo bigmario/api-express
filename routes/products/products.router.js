@@ -62,7 +62,7 @@ router.delete('/:id',
 
 router.post('/',
   validatorhandler(createProductSchema, 'body'),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
       const productsService = await ProductsService.getInstance();
       const body = req.body;
