@@ -1,4 +1,5 @@
 const { faker } = require('@faker-js/faker');
+const { Op } = require("sequelize");
 const boom = require('@hapi/boom');
 const {models} = require('../../libs/sequelize')
 
@@ -29,17 +30,39 @@ class ProductsService {
     return product;
   }
 
-  async findAll(queryParams = null) {
-    const data = await models.Product.findAll({
-      include: ['category']
-    })
+  async findAll(queryParams) {
+    const {limit, offset, price, min_price, max_price} = queryParams;
 
-    const {limit, offset} = queryParams;
+    const options = {
+      include: ['category'],
+      ...((limit && offset) && {
+        limit: limit,
+        offset: offset
+      }),
+      where: {
+        ...(max_price && {
+          price: {
+            [Op.lte]: max_price
+          }
+        }),
+        ...((min_price && max_price) && {
+          price: {
+            [Op.between]: [min_price, max_price]
+          }
+        })
+      },
+      order: ['id']
+
+    }
+
+    const data = await models.Product.findAll(options)
 
     const count = data.length;
     const pages = Math.ceil(count/limit);
     const currentPage = Math.ceil(count%offset);
-    const products = ( (limit && offset) && ( offset>0 )) ? data.slice((offset - 1) * limit , (limit * offset)) : data;
+    //const products = ( (limit && offset) && ( offset>0 )) ? data.slice((offset - 1) * limit , (limit * offset)) : data;
+
+    const products = data;
 
     const response = {
       data: products,
