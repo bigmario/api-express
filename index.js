@@ -19,6 +19,8 @@ const port = process.env.PORT || 3000;
 app.use(express.json())
 app.use(cors(corsOptions));
 
+require('./utils/auth')
+
 routerApi(app);
 
 app.use(logErrors)
