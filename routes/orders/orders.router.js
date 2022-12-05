@@ -14,8 +14,8 @@ const service = new OrderService();
 router.get('/', async (req, res, next) => {
   try {
     const {query} = req
-    const categories = await service.find(query);
-    res.json(categories);
+    const orders = await service.find(query);
+    res.json(orders);
   } catch (error) {
     next(error);
   }

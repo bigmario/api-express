@@ -31,7 +31,7 @@ class ProductsService {
   }
 
   async findAll(queryParams) {
-    const {limit, offset, price, min_price, max_price} = queryParams;
+    const {limit, offset, min_price, max_price} = queryParams;
 
     const options = {
       include: ['category'],
