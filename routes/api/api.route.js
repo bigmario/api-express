@@ -1,5 +1,6 @@
-const express = require('express')
-const checkApiKey = require('../../middlewares/auth.handler')
+const express = require('express');
+const passport = require('passport');
+
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/test_auth', checkApiKey, (req, res) => {
+router.get('/test_auth', passport.authenticate('jwt', {session: false}), (req, res) => {
   res.json({
     message: 'Authorized',
     statusCode: res.statusCode
