@@ -49,8 +49,7 @@ class UserService {
 
   async findOneByEmail(email) {
     const user = await models.User.findOne({
-      where: { email },
-      include: ['Customer']
+      where: { email }
     });
     return user;
   }
