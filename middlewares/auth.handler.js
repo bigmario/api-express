@@ -10,7 +10,7 @@ function checkApiKey(req, res, next) {
   }
 }
 
-function checkRoles(roles){
+function checkRoles(...roles){
   return (req, res, next) => {
     const user = req.user;
     if (roles.includes(user.role)) {
