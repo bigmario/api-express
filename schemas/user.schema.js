@@ -2,6 +2,7 @@ const Joi = require('joi');
 
 const id = Joi.number().integer();
 const email = Joi.string().email();
+const recoveryToken = Joi.string();
 const password = Joi.string().min(8);
 const role = Joi.string().min(5);
 

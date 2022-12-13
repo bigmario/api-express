@@ -17,50 +17,76 @@ class AuthService {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            throw booms.unauthorized();
+            throw boom.unauthorized();
         }
         delete user.dataValues.password
         return user;
     }
 
-    async signToken(user) {
+    signToken(user) {
         const payload = {
             sub: user.id,
             role: user.role
         }
 
-        const response = {
-            user,
-            token: jwt.sign(payload, config.jwtSecret)
-        }
+        const token = jwt.sign(payload, config.jwtSecret);
 
-        return response;
+        return {
+            user,
+            token
+        };
     }
 
-    async sendMail(mail) {
-        const user = await service.findOneByEmail(mail);
+    async sendRecovery(email) {
+        const user = await service.findOneByEmail(email);
         if (!user) {
             throw boom.unauthorized();
         }
+        const payload = { sub: user.id };
+        const token = jwt.sign(payload, config.jwtSecret, {expiresIn: '15min'});
+        const link = `http://myfrontend.com/recovery?token=${token}`;
+        await service.update(user.id, {recoveryToken: token});
+        const mail = {
+            from: `"Admin" <${config.smtpEmail}>`, // sender address
+            to: `${user.email}`, // list of receivers
+            subject: 'Email para recuperar contraseña', // Subject line
+            html: `<b>Ingresa a este link => ${link}</b>`, // html body
+        }
 
+        return await this.sendMail(mail);
+    }
+
+    async changePassword(token, newPassword){
+        try {
+            const payload = jwt.verify(token, config.jwtSecret);
+
+            const user = await service.findOne(payload.sub);
+
+            if (user.recoveryToken !== token) {
+                throw boom.unauthorized();
+            }
+            const hash = await bcrypt.hash(newPassword, 10);
+            console.log(hash);
+            await service.update(user.id, {recoveryToken: null, password: hash});
+            return { message: 'Password Changed'}
+        } catch (error) {
+            throw boom.unauthorized()
+        }
+    }
+
+    async sendMail(infoMail) {
         const transporter = mailer.createTransport({
-            host: "smtp.mailtrap.io",
-            port: 2525,
+            host: config.smtpHost,
+            port: config.smtpPort,
             auth: {
-                user: "7409313a15f325",
-                pass: "90d9e012d5ceca"
+                user: config.smtpUser,
+                pass: config.smtpPassword
             }
         });
 
-        const info = await transporter.sendMail({
-            from: '"Fred Foo 👻" <foo@example.com>', // sender address
-            to: `${user.email}`, // list of receivers
-            subject: "Hello ✔", // Subject line
-            text: "Hello world?", // plain text body
-            html: "<b>Hello world?</b>", // html body
-        });
+        await transporter.sendMail(infoMail);
 
-        return {message: "Message sent", info: info.messageId};
+        return {message: "Message sent"};
     }
 }
 

@@ -58,10 +58,7 @@ class UserService {
     const userUpdate = await this.findOne(id);
     const rta = await userUpdate.update(changes);
 
-    return {
-      id,
-      rta,
-    };
+    return rta;
   }
 
   async delete(id) {
