@@ -6,6 +6,7 @@ class UserService {
   constructor() {}
 
   async create(data) {
+    // MAKE THIS TRANSACTIONAL
     const hashedPass = await bcrypt.hash(data.password, 10);
     const newUser = await models.User.create({
         name: data.name,
@@ -75,6 +76,7 @@ class UserService {
   }
 
   async update(id, changes) {
+    // MAKE THIS TRANSACTIONAL
     const userUpdate = await this.findOne(id);
     const rta = await userUpdate.update({
         name: changes.name,
@@ -93,6 +95,7 @@ class UserService {
   }
 
   async delete(id) {
+    // MAKE THIS TRANSACTIONAL
     const userDelete = await this.findOne(id);
     return userDelete.destroy();
   }
