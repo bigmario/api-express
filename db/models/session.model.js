@@ -37,15 +37,13 @@ const SessionSchema = {
   },
   userId: {
     field: 'user_id',
-    allowNull: false,
+    allowNull: true,
     type: DataTypes.INTEGER,
     unique: true,
     references: {
       model: USER_TABLE,
       key: 'id'
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE'
+    }
   }
 }
 
