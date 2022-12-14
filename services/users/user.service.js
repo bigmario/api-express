@@ -9,18 +9,31 @@ class UserService {
   async create(data) {
     const hashedPass = await bcrypt.hash(data.password, 10);
     const newUser = await models.User.create({
-      ...data,
-      password: hashedPass
-    })
-    delete newUser.dataValues.password
+      name: data.name,
+      lastName: data.lastName,
+      Session: {
+        email: data.email,
+        password: hashedPass,
+        role: data.role
+      },
+    },
+    {
+      include: ['Session']
+    }
+    );
+    delete newUser.Session.dataValues.password
     return newUser;
   }
 
   async find(queryParams) {
     const rta = await models.User.findAll({
-      include: ['Customer']
+      include: ['Session']
     });
     const {limit, offset} = queryParams;
+
+    for (const item of rta) {
+      delete item.dataValues.Session.dataValues.password;
+    }
 
     const count = rta.length;
     const pages = Math.ceil(count/limit);
