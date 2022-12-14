@@ -2,24 +2,23 @@ const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
 const {models} = require('../../libs/sequelize')
 
-const getConnection = require('../../libs/postgres')
 class UserService {
   constructor() {}
 
   async create(data) {
     const hashedPass = await bcrypt.hash(data.password, 10);
     const newUser = await models.User.create({
-      name: data.name,
-      lastName: data.lastName,
-      Session: {
-        email: data.email,
-        password: hashedPass,
-        role: data.role
+        name: data.name,
+        lastName: data.lastName,
+        Session: {
+          email: data.email,
+          password: hashedPass,
+          role: data.role
+        },
       },
-    },
-    {
-      include: ['Session']
-    }
+      {
+        include: ['Session']
+      }
     );
     delete newUser.Session.dataValues.password
     return newUser;
@@ -62,14 +61,33 @@ class UserService {
 
   async findOneByEmail(email) {
     const user = await models.User.findOne({
-      where: { email }
+      include: {
+        model: models.Session,
+        as: 'Session',
+        where: {
+          email
+        }
+      },
+
+
     });
     return user;
   }
 
   async update(id, changes) {
     const userUpdate = await this.findOne(id);
-    const rta = await userUpdate.update(changes);
+    const rta = await userUpdate.update({
+        name: changes.name,
+        lastName: changes.lastName,
+        Session: {
+          email: changes.email,
+          role: changes.role
+        },
+      },
+      {
+        include: ['Session']
+      }
+    );
 
     return rta;
   }

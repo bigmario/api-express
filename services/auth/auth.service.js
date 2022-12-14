@@ -15,11 +15,11 @@ class AuthService {
             throw boom.unauthorized();
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.dataValues.Session.dataValues.password);
         if (!isMatch) {
             throw boom.unauthorized();
         }
-        delete user.dataValues.password
+        delete user.dataValues.Session.dataValues.password
         return user;
     }
 
