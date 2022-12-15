@@ -21,7 +21,8 @@ class UserService {
             },
           },
           {
-            include: ['Session']
+            include: ['Session'],
+            transaction: t
           }
         );
         delete newUser.Session.dataValues.password
@@ -40,9 +41,9 @@ class UserService {
     });
     const {limit, offset} = queryParams;
 
-    for (const item of rta) {
-      delete item.dataValues.Session.dataValues.password;
-    }
+    // for (const item of rta) {
+    //   delete item.dataValues.Session.dataValues.password;
+    // }
 
     const count = rta.length;
     const pages = Math.ceil(count/limit);
