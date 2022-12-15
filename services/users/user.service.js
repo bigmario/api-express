@@ -77,6 +77,10 @@ class UserService {
         }
       },
     });
+    if (!user) {
+      throw boom.notFound('User not found');
+    }
+    delete user.Session.dataValues.password;
     return user;
   }
 
@@ -113,11 +117,14 @@ class UserService {
   async delete(id) {
     // MAKE THIS TRANSACTIONAL
     try {
-      return await models.User.destroy({
-        where: {
-          id,
-        }
+      const result = await sequelize.transaction(async (t) => {
+        return await models.User.destroy({
+          where: {
+            id,
+          }
+        });
       });
+      return result;
     } catch (error) {
       throw boom.internal();
     }
