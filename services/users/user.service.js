@@ -88,7 +88,6 @@ class UserService {
     if (!user) {
       throw boom.notFound('User not found');
     }
-    delete user.Session.dataValues.password;
     return user;
   }
 

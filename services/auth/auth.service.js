@@ -15,18 +15,18 @@ class AuthService {
             throw boom.unauthorized();
         }
 
-        const isMatch = await bcrypt.compare(password, user.dataValues.Session.dataValues.password);
+        const isMatch = await bcrypt.compare(password, user.Session.dataValues.password);
         if (!isMatch) {
             throw boom.unauthorized();
         }
-        delete user.dataValues.Session.dataValues.password
+        delete user.Session.dataValues.password
         return user;
     }
 
     signToken(user) {
         const payload = {
             sub: user.id,
-            role: user.role
+            role: user.Session.dataValues.role
         }
 
         const token = jwt.sign(payload, config.jwtSecret);
@@ -48,7 +48,7 @@ class AuthService {
         await service.update(user.id, {recoveryToken: token});
         const mail = {
             from: `"Admin" <${config.smtpEmail}>`, // sender address
-            to: `${user.email}`, // list of receivers
+            to: `${user.Session.dataValues.email}`, // list of receivers
             subject: 'Email para recuperar contraseña', // Subject line
             html: `<b>Ingresa a este link => ${link}</b>`, // html body
         }
@@ -62,11 +62,10 @@ class AuthService {
 
             const user = await service.findOne(payload.sub);
 
-            if (user.recoveryToken !== token) {
+            if (user.Session.dataValues.recoveryToken !== token) {
                 throw boom.unauthorized();
             }
             const hash = await bcrypt.hash(newPassword, 10);
-            console.log(hash);
             await service.update(user.id, {recoveryToken: null, password: hash});
             return { message: 'Password Changed'}
         } catch (error) {
