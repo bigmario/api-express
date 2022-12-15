@@ -1,5 +1,6 @@
 const boom = require('@hapi/boom');
 const bcrypt = require('bcrypt');
+const sequelize = require('../../libs/sequelize');
 const {models} = require('../../libs/sequelize')
 
 class UserService {
@@ -53,10 +54,16 @@ class UserService {
   }
 
   async findOne(id) {
-    const user = await models.User.findByPk(id);
+    const user = await models.User.findByPk(id, {
+      include: {
+        model: models.Session,
+        as: 'Session'
+      },
+    });
     if (!user) {
       throw boom.notFound('User not found');
     }
+    delete user.Session.dataValues.password;
     return user;
   }
 
@@ -69,35 +76,51 @@ class UserService {
           email
         }
       },
-
-
     });
     return user;
   }
 
   async update(id, changes) {
-    // MAKE THIS TRANSACTIONAL
-    const userUpdate = await this.findOne(id);
-    const rta = await userUpdate.update({
-        name: changes.name,
-        lastName: changes.lastName,
-        Session: {
-          email: changes.email,
-          role: changes.role
-        },
-      },
-      {
-        include: ['Session']
-      }
-    );
+    try {
+      const result = await sequelize.transaction(async (t) => {
+        await models.User.update(
+          changes,
+          {
+            where: {
+              id
+            }
+          },
+          { transaction: t }
+        )
 
-    return rta;
+        await models.Session.update(
+          changes,
+          {
+            where: {
+              userId: id
+            }
+          },
+          { transaction: t }
+        )
+      });
+      const userUpdate = await this.findOne(id);
+      return userUpdate;
+    } catch (error) {
+      throw boom.internal()
+    }
   }
 
   async delete(id) {
     // MAKE THIS TRANSACTIONAL
-    const userDelete = await this.findOne(id);
-    return userDelete.destroy();
+    try {
+      return await models.User.destroy({
+        where: {
+          id,
+        }
+      });
+    } catch (error) {
+      throw boom.internal();
+    }
   }
 }
 

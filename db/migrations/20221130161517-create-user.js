@@ -63,7 +63,7 @@ module.exports = {
       },
       userId: {
         field: 'user_id',
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.DataTypes.INTEGER,
         unique: true,
         references: {

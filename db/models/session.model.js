@@ -43,13 +43,17 @@ const SessionSchema = {
     references: {
       model: USER_TABLE,
       key: 'id'
-    }
+    },
   }
 }
 
 class Session extends Model {
   static associate(models) {
-    this.belongsTo(models.User, {as: 'user'});
+    this.belongsTo(models.User, {
+      as: 'user',
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    });
   }
 
   static config(sequelize) {

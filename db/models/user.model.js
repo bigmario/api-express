@@ -30,8 +30,10 @@ class User extends Model {
   static associate(models) {
     this.hasOne(models.Session, {
       as: 'Session',
-      foreignKey: 'userId'
-    },)
+      foreignKey: 'userId',
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
+    });
   }
 
   static config(sequelize) {
