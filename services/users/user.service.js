@@ -8,22 +8,30 @@ class UserService {
 
   async create(data) {
     // MAKE THIS TRANSACTIONAL
-    const hashedPass = await bcrypt.hash(data.password, 10);
-    const newUser = await models.User.create({
-        name: data.name,
-        lastName: data.lastName,
-        Session: {
-          email: data.email,
-          password: hashedPass,
-          role: data.role
-        },
-      },
-      {
-        include: ['Session']
-      }
-    );
-    delete newUser.Session.dataValues.password
-    return newUser;
+    try {
+      const result = await sequelize.transaction(async (t) => {
+        const hashedPass = await bcrypt.hash(data.password, 10);
+        const newUser = await models.User.create({
+            name: data.name,
+            lastName: data.lastName,
+            Session: {
+              email: data.email,
+              password: hashedPass,
+              role: data.role
+            },
+          },
+          {
+            include: ['Session']
+          }
+        );
+        delete newUser.Session.dataValues.password
+        return newUser;
+      });
+      return result;
+    } catch (error) {
+      throw boom.internal();
+    }
+
   }
 
   async find(queryParams) {
@@ -120,8 +128,10 @@ class UserService {
         return await models.User.destroy({
           where: {
             id,
-          }
-        });
+          },
+          truncate: true,
+          cascade: true
+        },);
       });
       return result;
     } catch (error) {
