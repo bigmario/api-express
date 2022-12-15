@@ -115,7 +115,6 @@ class UserService {
   }
 
   async delete(id) {
-    // MAKE THIS TRANSACTIONAL
     try {
       const result = await sequelize.transaction(async (t) => {
         return await models.User.destroy({
