@@ -11,7 +11,11 @@ function routerApi(app) {
 
   apiRouter.use('/auth', authRouter);
 
-  apiRouter.use('/users', usersRouter);
+  apiRouter.use(
+    '/users',
+    passport.authenticate('jwt', {session: false}),
+    checkRoles('admin'),
+    usersRouter);
 }
 
 module.exports = routerApi;
