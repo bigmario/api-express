@@ -20,6 +20,7 @@ class AuthService {
             throw boom.unauthorized();
         }
         delete user.Session.dataValues.password
+        delete user.Session.dataValues.recoveryToken;
         return user;
     }
 

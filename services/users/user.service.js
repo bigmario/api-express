@@ -26,6 +26,7 @@ class UserService {
           }
         );
         delete newUser.Session.dataValues.password
+        delete newUser.Session.dataValues.recoveryToken
         return newUser;
       });
       return result;
@@ -41,9 +42,10 @@ class UserService {
     });
     const {limit, offset} = queryParams;
 
-    // for (const item of rta) {
-    //   delete item.dataValues.Session.dataValues.password;
-    // }
+    for (const item of rta) {
+      delete item.Session.dataValues.password;
+      delete item.Session.dataValues.recoveryToken;
+    }
 
     const count = rta.length;
     const pages = Math.ceil(count/limit);
@@ -73,6 +75,7 @@ class UserService {
       throw boom.notFound('User not found');
     }
     delete user.Session.dataValues.password;
+    delete user.Session.dataValues.recoveryToken;
     return user;
   }
 
